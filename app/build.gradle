@@ -11,14 +11,14 @@ android {
             storePassword '123456'
         }
     }
-    compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
     defaultConfig {
         applicationId "com.app.hotfix_bugly"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 23
         versionCode 1
-        versionName "1.0.1"
+        versionName "2.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -41,7 +41,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:23.0.1'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.tencent.bugly:crashreport_upgrade:1.2.0'
@@ -53,13 +53,13 @@ ext {
 
     // for normal build
     // old apk file to build patch apk
-    tinkerOldApkPath = "${bakPath}/app-release.apk"
+    tinkerOldApkPath = "${bakPath}/app-debug-0110-10-44-05.apk"
     // proguard mapping file to build patch apk
-    tinkerApplyMappingPath = "${bakPath}/mapping.txt"
+    tinkerApplyMappingPath = "${bakPath}/app-debug-0110-10-44-05-mapping.txt"
     // resource R.txt to build patch apk, must input if there is resource changed
-    tinkerApplyResourcePath = "${bakPath}/R.txt"
+    tinkerApplyResourcePath = "${bakPath}/app-debug-0110-10-44-05-R.txt"
     // only use for build all flavor, if not, just ignore this field
-    tinkerBuildFlavorDirectory = "${bakPath}/app-1124-23-03-52"
+    tinkerBuildFlavorDirectory = "${bakPath}/app-0110-10-20-52"
 }
 
 def getOldApkPath() {
@@ -102,7 +102,7 @@ tinkerPatch {
     buildConfig {
         applyMapping = getApplyMappingPath() //  可选，设置mapping文件，建议保持旧apk的proguard混淆方式
         applyResourceMapping = getApplyResourceMappingPath()      // 可选，设置R.txt文件，通过旧apk文件保持ResId的分配
-        tinkerId = "v1.0.0"  // 必选，当前版本的唯一标识，可以是git版本号、versionName
+        tinkerId = "1.0"  // 必选，当前版本的唯一标识，可以是git版本号、versionName
     }
 
     // dex相关配置项
@@ -138,5 +138,52 @@ tinkerPatch {
     // 7zip路径配置项，执行前提是useSign为true
     sevenZip {
         zipArtifact = "com.tencent.mm:SevenZip:1.1.10" // optional
+    }
+
+    List<String> flavors = new ArrayList<>();
+    project.android.productFlavors.each { flavor ->
+        flavors.add(flavor.name)
+    }
+    boolean hasFlavors = flavors.size() > 0
+    /**
+     * bak apk and mapping
+     */
+    android.applicationVariants.all { variant ->
+        /**
+         * task type, you want to bak
+         */
+        def taskName = variant.name
+        def date = new Date().format("MMdd-HH-mm-ss")
+
+        tasks.all {
+            if ("assemble${taskName.capitalize()}".equalsIgnoreCase(it.name)) {
+
+                it.doLast {
+                    copy {
+                        def fileNamePrefix = "${project.name}-${variant.baseName}"
+                        def newFileNamePrefix = hasFlavors ? "${fileNamePrefix}" : "${fileNamePrefix}-${date}"
+
+                        def destPath = hasFlavors ? file("${bakPath}/${project.name}-${date}/${variant.flavorName}") : bakPath
+                        from variant.outputs.outputFile
+                        into destPath
+                        rename { String fileName ->
+                            fileName.replace("${fileNamePrefix}.apk", "${newFileNamePrefix}.apk")
+                        }
+
+                        from "${buildDir}/outputs/mapping/${variant.dirName}/mapping.txt"
+                        into destPath
+                        rename { String fileName ->
+                            fileName.replace("mapping.txt", "${newFileNamePrefix}-mapping.txt")
+                        }
+
+                        from "${buildDir}/intermediates/symbols/${variant.dirName}/R.txt"
+                        into destPath
+                        rename { String fileName ->
+                            fileName.replace("R.txt", "${newFileNamePrefix}-R.txt")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
