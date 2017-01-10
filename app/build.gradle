@@ -18,7 +18,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
-        versionName "2.0"
+        versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -42,6 +42,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:support-v4:23.0.1'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.tencent.bugly:crashreport_upgrade:1.2.0'
@@ -53,13 +54,13 @@ ext {
 
     // for normal build
     // old apk file to build patch apk
-    tinkerOldApkPath = "${bakPath}/app-debug-0110-10-44-05.apk"
+    tinkerOldApkPath = "${bakPath}/app-debug-0110-16-02-27.apk"
     // proguard mapping file to build patch apk
-    tinkerApplyMappingPath = "${bakPath}/app-debug-0110-10-44-05-mapping.txt"
+    tinkerApplyMappingPath = "${bakPath}/app-debug-0110-16-02-27-mapping.txt"
     // resource R.txt to build patch apk, must input if there is resource changed
-    tinkerApplyResourcePath = "${bakPath}/app-debug-0110-10-44-05-R.txt"
+    tinkerApplyResourcePath = "${bakPath}/app-debug-0110-16-02-27-R.txt"
     // only use for build all flavor, if not, just ignore this field
-    tinkerBuildFlavorDirectory = "${bakPath}/app-0110-10-20-52"
+    tinkerBuildFlavorDirectory = "${bakPath}/app-0110-16-02-27"
 }
 
 def getOldApkPath() {

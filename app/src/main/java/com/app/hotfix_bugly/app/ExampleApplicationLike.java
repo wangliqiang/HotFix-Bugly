@@ -32,6 +32,7 @@ public class ExampleApplicationLike extends DefaultApplicationLike {
     public void onCreate() {
         super.onCreate();
         Bugly.init(getApplication(), "b54951a9d0", false);
+        Bugly.setIsDevelopmentDevice(getApplication(), true);
     }
 
 
