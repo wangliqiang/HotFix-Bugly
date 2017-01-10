@@ -31,7 +31,7 @@ public class ExampleApplicationLike extends DefaultApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        Bugly.init(getApplication(), "b54951a9d0", false);
+        Bugly.init(getApplication(), "4e47ac3ee9", false);
         Bugly.setIsDevelopmentDevice(getApplication(), true);
     }
 
